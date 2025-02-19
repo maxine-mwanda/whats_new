@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsNew - Home</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            width: 100%;
+        }
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        header, footer {
+            width: 100%;
+            background: #333;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+        main {
+            flex: 1;
+            width: 100%;
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        button {
+            width: 100%;
+            max-width: 300px;
+            padding: 15px;
+            margin: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background: #007BFF;
+            color: white;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .floating-slogan {
+          position: fixed;
+          top: 20px; /* Position it at the top of the page */
+          right: 20px; /* Position it on the right side */
+          background: rgba(0, 123, 255, 0.9);
+          color: white;
+          padding: 15px;
+          border-radius: 5px;
+          z-index: 1000;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        h2, h3, h4 {
+            margin: 20px 0;
+            color: #333;
+        }
+        ul {
+            margin: 20px 0;
+            padding-left: 20px;
+        }
+        li {
+            margin: 10px 0;
+        }
+        p {
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+                /* Make the page container relative for positioning */
+        .page-container {
+          position: relative;
+          overflow: hidden;
+        }
+
+        /* Example for transitioning page content */
+        .page {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          transition: transform 0.3s ease-out;
+        }
+
+        /* Add classes for slide transitions */
+        .page-slide-left {
+          transform: translateX(-100%);
+        }
+
+        .page-slide-right {
+          transform: translateX(100%);
+        }
+    </style>
+</head>
+<body>
+  <div id="root"></div>
+</body>
+<body>
+    <div class="floating-slogan" style="background: rgba(255, 0, 0, 0.9);">
+        Stay updated with the latest news and trends
+    </div>
+    <header>
+        <h1>Welcome to WhatsNew</h1>
+    </header>
+    <main>
+        <div class="container" style="background-color: rgb(64, 91, 245);">
+            <h2 style="text-align: center;">The Ultimate Blog for Well-Researched, Factual Content</h2>
+            <p>In a world brimming with misinformation and half-truths, finding a reliable source of well-researched, fact-based content can feel like searching for a needle in a haystack. At WhatsNew, we prioritize accuracy, depth, and credibility.</p>
+            
+                        <h3>Why Choose WhatsNew?</h3>
+            <ul>
+                <li>Unparalleled Research Standards</li>
+                <li>A Wide Range of Topics</li>
+                <li>Transparency and Source Integrity</li>
+                <li>Expert Contributors and Guest Writers</li>
+                <li>A Community for Knowledge Seekers</li>
+                <li>No Sensationalism, Just Facts</li>
+                <li>User-Friendly Interface & Subscription Model</li>
+            </ul>
+            
+            <h3 style="text-align: center;">Revolutionizing the Blogosphere</h3>
+            <p>WhatsNew isn't just another blogging platform—it's a movement toward information integrity. We blend journalistic precision with engaging storytelling, making verified knowledge not only accessible but enjoyable to consume.</p>
+            
+            <h4>Join the Fact-Based Revolution</h4>
+            <p><i>Read, learn, and engage with WhatsNew—where knowledge meets integrity.</i></p>
+        </div>
+          
+        <div class="button-container">
+          <button id="adminButton" onclick="window.location.href='/admin'">Proceed as Admin</button>
+          <button id="readerButton" onclick="window.location.href='/reader'">Proceed as Reader</button>         
+        </div>
+        <script src="js/script.js"></script>
+        <link rel="stylesheet" href="css/style.css">
+
+    </main>
+    <footer>
+        <p>&copy; 2025 WhatsNew. All rights reserved.</p>
+        <p>&copy; Designed and coded by MetroPlus technologies. All rights reserved.</p>
+    </footer>
+    
+    <script>
+        // Add event listeners to buttons
+        document.getElementById('adminButton').addEventListener('click', function() {
+          // Send a POST request to the backend when the "Admin" button is clicked
+          fetch('http://localhost:5000/api/proceed-admin', {  // Update with correct backend endpoint
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              message: 'Admin Proceed Button Clicked'
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log('Backend response:', data);
+            alert('Admin Proceed action triggered!');
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+        });
+    
+        document.getElementById('readerButton').addEventListener('click', function() {
+          // Send a POST request to the backend when the "Reader" button is clicked
+          fetch('http://localhost:5000/api/proceed-reader', {  // Update with correct backend endpoint
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              message: 'Reader Proceed Button Clicked'
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log('Backend response:', data);
+            alert('Reader Proceed action triggered!');
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+        });
+      </script>
+</body>
+</html>
