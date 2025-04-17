@@ -1,112 +1,44 @@
 const express = require('express');
 const router = express.Router();
-const { check, validationResult } = require('express-validator');
-const auth = require('../middleware/auth');
-const { Post, User, Category, Tag } = require('../models');
-const { Op } = require('sequelize');
+let posts = require('../data/posts');
 
-// @route    GET api/posts
-// @desc     Get all published posts
-// @access   Public
-router.get('/', async (req, res) => {
-  try {
-    const { page = 1, limit = 10, category, tag, search } = req.query;
-    const offset = (page - 1) * limit;
+// Dummy auth middleware (optional, replace with your real one if needed)
+const auth = (req, res, next) => {
+  // Skip auth for now or mock user
+  req.user = { id: 1 }; 
+  next();
+};
 
-    let where = { status: 'published' };
-    let include = [
-      { model: User, attributes: ['id', 'username', 'avatar'] },
-      { model: Category, attributes: ['id', 'name', 'slug'] }
-    ];
-
-    if (category) {
-      include[1].where = { slug: category };
-    }
-
-    if (tag) {
-      include.push({
-        model: Tag,
-        where: { slug: tag },
-        attributes: [],
-        through: { attributes: [] }
-      });
-    }
-
-    if (search) {
-      where[Op.or] = [
-        { title: { [Op.like]: `%${search}%` } },
-        { content: { [Op.like]: `%${search}%` } }
-      ];
-    }
-
-    const posts = await Post.findAndCountAll({
-      where,
-      include,
-      order: [['published_at', 'DESC']],
-      offset,
-      limit: parseInt(limit),
-      distinct: true
-    });
-
-    res.json({
-      total: posts.count,
-      pages: Math.ceil(posts.count / limit),
-      currentPage: parseInt(page),
-      posts: posts.rows
-    });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
+// GET all posts
+router.get('/', auth, (req, res) => {
+  res.json(posts);
 });
 
-// @route    POST api/posts
-// @desc     Create a post
-// @access   Private (Admin/Author)
-router.post(
-  '/',
-  [
-    auth,
-    [
-      check('title', 'Title is required').not().isEmpty(),
-      check('content', 'Content is required').not().isEmpty()
-    ]
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+// GET one post
+router.get('/:id', auth, (req, res) => {
+  const post = posts.find(p => p.id === parseInt(req.params.id));
+  if (!post) return res.status(404).json({ message: 'Post not found' });
+  res.json(post);
+});
 
-    try {
-      const { title, content, excerpt, categoryId, tags, status, featuredImage } = req.body;
+// POST create a post
+router.post('/', auth, (req, res) => {
+  const { title, content } = req.body;
+  const newPost = {
+    id: posts.length + 1,
+    title,
+    content,
+    userId: req.user.id,
+  };
+  posts.push(newPost);
+  res.status(201).json(newPost);
+});
 
-      const post = await Post.create({
-        title,
-        slug: title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
-        content,
-        excerpt: excerpt || content.substring(0, 160) + '...',
-        featured_image: featuredImage,
-        author_id: req.user.id,
-        category_id: categoryId,
-        status: status || 'draft',
-        published_at: status === 'published' ? new Date() : null
-      });
-
-      if (tags && tags.length > 0) {
-        const tagIds = await Tag.findAll({
-          where: { id: tags },
-          attributes: ['id']
-        });
-        await post.setTags(tagIds);
-      }
-
-      res.json(post);
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send('Server Error');
-    }
-  }
-);
+// DELETE a post
+router.delete('/:id', auth, (req, res) => {
+  const id = parseInt(req.params.id);
+  posts = posts.filter(p => p.id !== id);
+  res.json({ message: 'Post deleted' });
+});
 
 module.exports = router;
